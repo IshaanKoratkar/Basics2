@@ -6,6 +6,50 @@ import os
 
 #class commands():
 
+    #class file_commands():
+
+        #def new():
+
+        #def new_window():
+
+        #def open():
+
+        #def save():
+
+        #def exit(): 
+
+    #class edit_commands():
+
+        #def undo():
+
+        #def redo():
+
+        #def copy():
+
+        #def paste():
+
+        #def cut():
+
+        #def delete():
+
+        #def select_all():
+
+        #def datetime():
+
+    #class view_commands():
+
+        #def zoom_in():
+
+        #def zoom_out():
+
+        #def defualt_zoom():
+
+    #class help_commands():
+
+        #def view_help():
+
+        #def about_notes():
+
 class window():
     
     window = Tk()
