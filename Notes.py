@@ -3,106 +3,55 @@ from tkinter import *
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import os
-
-#class commands():
-
-    #class file_commands():
-
-        #def new():
-
-        #def new_window():
-
-        #def open():
-
-        #def save():
-
-        #def exit(): 
-
-    #class edit_commands():
-
-        #def undo():
-
-        #def redo():
-
-        #def copy():
-
-        #def paste():
-
-        #def cut():
-
-        #def delete():
-
-        #def select_all():
-
-        #def datetime():
-
-    #class view_commands():
-
-        #def zoom_in():
-
-        #def zoom_out():
-
-        #def defualt_zoom():
-
-    #class help_commands():
-
-        #def view_help():
-
-        #def about_notes():
-
-class window():
     
-    window = Tk()
-    window.geometry("1000x450") 
-    window.title("Notes")
+window = Tk()
+window.geometry("1000x450") 
+window.title("Notes")
 
-    scrollbar = Scrollbar(window)
-    scrollbar.pack(side = RIGHT, fill = Y)
+scrollbar = Scrollbar(window)
+scrollbar.pack(side = RIGHT, fill = Y)
 
-    typingarea = Text(window, height = 1000, width = 450)
-    typingarea.pack()
+typingarea = Text(window, height = 1000, width = 450)
+typingarea.pack() 
 
-    icon = PhotoImage(file = "Notes_Icon.png") 
-    window.iconphoto(False, icon) 
+icon = PhotoImage(file = "Notes_Icon.png") 
+window.iconphoto(False, icon) 
 
-    class menubar(): 
+menubar = Menu(window)
 
-        menubar = Menu(window)
+filemenu = Menu(menubar, tearoff = 0) 
+filemenu.add_command(label = "New                       ") 
+filemenu.add_command(label = "New Window                ")  
+filemenu.add_command(label = "Open...                   ") 
+filemenu.add_command(label = "Save                      ") 
+filemenu.add_separator() 
+filemenu.add_command(label = "Exit                      ") 
+menubar.add_cascade(label = "File", menu = filemenu)
 
-        filemenu = Menu(menubar, tearoff = 0) 
-        filemenu.add_command(label = "New                       ") 
-        filemenu.add_command(label = "New Window                ")  
-        filemenu.add_command(label = "Open...                   ") 
-        filemenu.add_command(label = "Save                      ") 
-        filemenu.add_separator() 
-        filemenu.add_command(label = "Exit                      ") 
-        menubar.add_cascade(label = "File", menu = filemenu)
+editmenu = Menu(menubar, tearoff = 0) 
+editmenu.add_command(label = "Undo                          ") 
+editmenu.add_command(label = "Redo                          ")
+editmenu.add_command(label = "Copy                          ")
+editmenu.add_command(label = "Paste                         ") 
+editmenu.add_command(label = "Cut                           ") 
+editmenu.add_command(label = "Delete                        ") 
+editmenu.add_separator() 
+editmenu.add_command(label = "Select All                    ") 
+editmenu.add_separator() 
+editmenu.add_command(label = "Datetime                      ") 
+menubar.add_cascade(label = "Edit", menu = editmenu)
 
-        editmenu = Menu(menubar, tearoff = 0) 
-        editmenu.add_command(label = "Undo                          ") 
-        editmenu.add_command(label = "Redo                          ")
-        editmenu.add_command(label = "Copy                          ")
-        editmenu.add_command(label = "Paste                         ") 
-        editmenu.add_command(label = "Cut                           ") 
-        editmenu.add_command(label = "Delete                        ") 
-        editmenu.add_separator() 
-        editmenu.add_command(label = "Select All                    ") 
-        editmenu.add_separator() 
-        editmenu.add_command(label = "Datetime                      ") 
-        menubar.add_cascade(label = "Edit", menu = editmenu)
+viewmenu = Menu(menubar, tearoff=0) 
+viewmenu.add_command(label = "Zoom In                   ") 
+viewmenu.add_command(label = "Zoom Out                  ") 
+viewmenu.add_command(label = "Default Zoom              ") 
+menubar.add_cascade(label = "View", menu = viewmenu)
 
-        viewmenu = Menu(menubar, tearoff=0) 
-        viewmenu.add_command(label = "Zoom In                   ") 
-        viewmenu.add_command(label = "Zoom Out                  ") 
-        viewmenu.add_command(label = "Default Zoom              ") 
-        menubar.add_cascade(label = "View", menu = viewmenu)
+helpmenu = Menu(menubar, tearoff = 0)
+helpmenu.add_command(label = "View Help                 ")
+helpmenu.add_separator() 
+helpmenu.add_command(label = "About Notes               ")
+menubar.add_cascade(label = "Help", menu = helpmenu)
 
-        helpmenu = Menu(menubar, tearoff = 0)
-        helpmenu.add_command(label = "View Help                 ")
-        helpmenu.add_separator() 
-        helpmenu.add_command(label = "About Notes               ")
-        menubar.add_cascade(label = "Help", menu = helpmenu)
-
-        window.config(menu = menubar)
-
+window.config(menu = menubar)
 window.mainloop()
