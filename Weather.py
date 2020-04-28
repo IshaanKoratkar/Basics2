@@ -1,7 +1,6 @@
 import json
 import requests
 
-
 api_key = "70ee2c91af84e06f66754f876bdc0aef"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
 city_name = str(input("Enter city name : "))
@@ -23,7 +22,8 @@ if x["cod"] != "404":
     print("Humidity (in percents) = " + str(current_humidiy))
     print("Description = " + str(weather_description)) 
     print("URL is " + complete_url)
-elif x["cod"] == "404":
+    
+if x["cod"] == "404":
 
     print("City not found.")
     print("URL is " + complete_url)
