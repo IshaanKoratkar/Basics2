@@ -1,5 +1,12 @@
 import json
 import requests
+from tkinter import *
+
+window = Tk()
+window.geometry("1000x450") 
+window.title("Weather")  
+myLabel = Label(window, text = ';alsdkjfa;lsdj') 
+myLabel.pack()
 
 api_key = "70ee2c91af84e06f66754f876bdc0aef"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
@@ -17,13 +24,15 @@ if x["cod"] != "404":
     z = x["weather"] 
     weather_description = z[0]["description"]
 
-    print("Temperature (in Fahrenheit) = " + str(current_temperature)) 
+    print("Temperature (in Fahrenheit) = " + current_temperature)
     print("Atmospheric pressure (in hPa) = " + str(current_pressure))
     print("Humidity (in percents) = " + str(current_humidiy))
     print("Description = " + str(weather_description)) 
     print("URL is " + complete_url)
     
-if x["cod"] == "404":
+elif x["cod"] == "404":
 
     print("City not found.")
     print("URL is " + complete_url)
+
+window.mainloop()
