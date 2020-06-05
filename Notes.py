@@ -1,46 +1,61 @@
+"""
+New Window, Save, and the Options functions are still not working so those need to be fixed.
+Also, the title formating, ya know when you open a new text file its like "{FILE NAME} - Notes", yeah we need to make that work too.
+Also tabs, tabs need to work.
+Yeah that's pretty much it.
+"""
+
 import tkinter  
-from tkinter import *
+from tkinter import ttk 
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 import pynput
 from pynput.keyboard import *
+import selenium
+from selenium import webdriver 
 import os
+import datetime
 
 window = Tk()
 window.title("Untitled - Notes")  
-window.geometry("1000x450") 
+window.geometry("1150x500") 
 
 scrollbar = Scrollbar(window)
 scrollbar.pack(side = RIGHT, fill = Y) 
 
-typingarea = Text(window, height = 1000, width = 450, yscrollcommand = scrollbar.set, undo = True)  
+scrollbar_2 = Scrollbar(window, orient = "horizontal")
+scrollbar_2.pack(side = BOTTOM, fill = X)  
+
+typingarea = Text(window, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True)  
 typingarea.configure(font = ("Courier", 12))
 typingarea.pack() 
 
 scrollbar.config(command = typingarea.yview)  
+scrollbar_2.config(command = typingarea.xview) 
 
 keyboard = Controller()
 
-def new(): 
-    typingarea.delete(0.0, END)
-    window.title("Untitled - Notes") 
-
 def save_as():
-    file_extension = [("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf"), ("Microsoft Word Open XML Document (*.docx)", "*.docx"), ("Microsoft Word Document (*.doc)", "*.doc"), ("Portable Document Format (*.pdf)", "*.pdf")]
-    text_file = asksaveasfile(mode = "w", filetypes = file_extension, title = "Save As...")  
+    file_extension = [("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")]
+    text_file = asksaveasfile(mode = "w", filetypes = file_extension, defaultextension = file_extension, title = "Save As...")  
     window.title("{NAME OF TEXT FILE} - Notes") 
     data = typingarea.get(0.0, END) 
     text_file.write(data) 
     text_file.close()
 
+def new(): 
+    if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
+        typingarea.delete(0.0, END)
+        window.title("Untitled - Notes") 
+
+    else:
+        save_as() 
+
 def open():
-    file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
-    text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
+    if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
+        file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
+        text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
 
-    if text_file == None:
-        window.title("{NAME OF TEXT FILE} - Notes")
-
-    if text_file != None:
         window.title("{NAME OF TEXT FILE} - Notes")
         typingarea.delete(0.0, END) 
 
@@ -48,38 +63,90 @@ def open():
         typingarea.insert(0.0, data) 
         text_file.close()  
 
+    else:
+        save_as() 
+
 def exit():
-    if messagebox.askyesno("Exit", "Are you sure you want to close Notes?"):
+    if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
         window.destroy()     
 
-def undo():
-    typingarea.edit_undo()
+    else:
+        save_as() 
+
+def undo(): 
+    keyboard.press(Key.ctrl)
+    keyboard.press("z")
+    keyboard.release(Key.ctrl)
+    keyboard.release("z")
 
 def redo():
-    typingarea.edit_redo()
+    keyboard.press(Key.ctrl)
+    keyboard.press("y")
+    keyboard.release(Key.ctrl)
+    keyboard.release("y")
 
 def copy():
-    typingarea.event_generate("<<Copy>>") 
+    keyboard.press(Key.ctrl)
+    keyboard.press("c")
+    keyboard.release(Key.ctrl)
+    keyboard.release("c")
 
 def paste():
-    typingarea.event_generate("<<Paste>>") 
+    keyboard.press(Key.ctrl)
+    keyboard.press("v")
+    keyboard.release(Key.ctrl)
+    keyboard.release("v")
 
 def cut(): 
-    typingarea.event_generate("<<Cut>>")  
+    keyboard.press(Key.ctrl)
+    keyboard.press("x")
+    keyboard.release(Key.ctrl)
+    keyboard.release("x")
 
 def delete():
     keyboard.press(Key.delete)
     keyboard.release(Key.delete)
-
-def backspace():
-    keyboard.press(Key.backspace)
-    keyboard.release(Key.backspace) 
 
 def select_all():
     keyboard.press(Key.ctrl)
     keyboard.press("a")
     keyboard.release("a")
     keyboard.release(Key.ctrl)
+
+def date_time():
+    date_and_time = str(datetime.datetime.now()) 
+    typingarea.insert(0.0, date_and_time) 
+
+def options():
+    window_2 = Toplevel() 
+    window_2.title("Options...") 
+    window_2.geometry("500x185") 
+
+    fontlabel = Label(window_2, text = "Font:")
+    fontlabel.grid(column = 3, row = 1)
+
+    fontsizelabel = Label(window_2, text = "Font Size:")
+    fontsizelabel.grid(column = 4, row = 1) 
+
+    fonttypelabel = Label(window_2, text = "Font Type:")
+    fonttypelabel.grid(column = 5, row = 1)
+
+    fontmenu = ttk.Combobox(window_2, width = 25, values = ["Arial", "Courier", "Times New Roman", "Verdana"])
+    fontmenu.grid(column = 3, row = 2)
+    fontmenu.current(1)
+
+    fontsizemenu = ttk.Combobox(window_2, width = 8, values = ["8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "28", "36", "48", "72"])
+    fontsizemenu.grid(column = 4, row = 2)
+    fontsizemenu.current(4)
+
+    fonttypemenu = ttk.Combobox(window_2, width = 15, values = ["Regular", "Bold", "Italic", "Bold Italic"]) 
+    fonttypemenu.grid(column = 5, row = 2)
+    fonttypemenu.current(0) 
+
+    frame = LabelFrame(window_2, text = "Sample Text", padx = 10, pady = 30, borderwidth = 1) 
+    frame.grid(row = 5, column = 1)  
+
+    mainloop() 
 
 def transparency_on():
     window.attributes("-alpha", 0.95) 
@@ -96,17 +163,21 @@ def dark_mode():
     typingarea.configure(foreground = "white") 
 
 def view_help():
-    showinfo("View Help", "Wdym this is app is soo easy.")  
-
+    options = webdriver.ChromeOptions()
+    options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+    browser = webdriver.Chrome("C:\\Users\\Ashwin\\Documents\\Python Apps\\Basics App Suite\\Notes\\chromedriver.exe", chrome_options = options)   
+    browser.get("https://www.google.com/search?sxsrf=ALeKk01-BzXrUEFcTW9iu-ejxVgsQQ35_g%3A1590437280250&ei=oCXMXsH1Do3i-gTi_bbgAg&q=Help+with+Windows+10+Notepad&oq=Help+with+Windows+10+Notespad&gs_lcp=CgZwc3ktYWIQA1AAWABg5zRoAHAAeACAAQCIAQCSAQCYAQCqAQdnd3Mtd2l6&sclient=psy-ab&ved=0ahUKEwjBxYHJ6M_pAhUNsZ4KHeK-DSwQ4dUDCAw&uact=5")
+   
 def about_notes():
-    showinfo("About Notes", "Notes 0.1 Beta\nProgrammed by Ashwin Kalyan")
+    showinfo("About Notes", "Notes 1.0 Beta                                                            \nBuilt by Ashwin Kalyan                                                            ")
 
 menubar = Menu(window) 
 
 filemenu = Menu(menubar, tearoff = 0)
 menubar.add_cascade(label = "File", menu = filemenu) 
-filemenu.add_command(label = "New                             ", command = new) 
-filemenu.add_command(label = "New Window                      ")  
+filemenu.add_command(label = "New                             ", command = new)
+filemenu.add_command(label = "New Tab                         ")   
+filemenu.add_command(label = "New Window                      ") 
 filemenu.add_separator() 
 filemenu.add_command(label = "Save                            ")   
 filemenu.add_command(label = "Save as...                      ", command = save_as) 
@@ -119,52 +190,22 @@ menubar.add_cascade(label = "Edit", menu = editmenu)
 editmenu.add_command(label = "Undo                            ", command = undo)
 editmenu.add_command(label = "Redo                            ", command = redo)  
 editmenu.add_separator() 
+editmenu.add_command(label = "Cut                             ", command = cut) 
 editmenu.add_command(label = "Copy                            ", command = copy)
 editmenu.add_command(label = "Paste                           ", command = paste)
-editmenu.add_command(label = "Cut                             ", command = cut) 
-editmenu.add_separator() 
 editmenu.add_command(label = "Delete                          ", command = delete) 
-editmenu.add_command(label = "Backspace                       ", command = backspace) 
 editmenu.add_separator() 
 editmenu.add_command(label = "Select All                      ", command = select_all)
+editmenu.add_command(label = "Date/Time                       ", command = date_time) 
 
 formatmenu = Menu(menubar, tearoff = 0)  
-fontmenu = Menu(menubar, tearoff = 0) 
-fontsizemenu = Menu(menubar, tearoff = 0) 
-fontstylemenu = Menu(menubar, tearoff = 0) 
-fontmenu.add_radiobutton(label = "Arial                          ") 
-fontmenu.add_radiobutton(label = "Calibri                        ") 
-fontmenu.add_radiobutton(label = "Comic Sans MS                  ") 
-fontmenu.add_radiobutton(label = "Courier                        ")
-fontmenu.add_radiobutton(label = "Geogria                        ")  
-fontmenu.add_radiobutton(label = "Times New Roman                ") 
-fontmenu.add_radiobutton(label = "Verdana                        ") 
-fontsizemenu.add_radiobutton(label = "11  ") 
-fontsizemenu.add_radiobutton(label = "12  ") 
-fontsizemenu.add_radiobutton(label = "14  ") 
-fontsizemenu.add_radiobutton(label = "16  ")
-fontsizemenu.add_radiobutton(label = "18  ") 
-fontsizemenu.add_radiobutton(label = "20  ") 
-fontsizemenu.add_radiobutton(label = "22  ") 
-fontsizemenu.add_radiobutton(label = "24  ")
-fontsizemenu.add_radiobutton(label = "26  ") 
-fontsizemenu.add_radiobutton(label = "28  ")  
-fontsizemenu.add_radiobutton(label = "36  ")    
-fontsizemenu.add_radiobutton(label = "48  ")   
-fontsizemenu.add_radiobutton(label = "72  ")    
-fontstylemenu.add_radiobutton(label = "Normal                         ") 
-fontstylemenu.add_radiobutton(label = "Bold                           ") 
-fontstylemenu.add_radiobutton(label = "Italic                         ") 
-fontstylemenu.add_radiobutton(label = "Bold Italic                    ")   
 menubar.add_cascade(label = "Format", menu = formatmenu) 
-formatmenu.add_cascade(label = "Font                           ", menu = fontmenu)  
-formatmenu.add_cascade(label = "Font Size                      ", menu = fontsizemenu) 
-formatmenu.add_cascade(label = "Font Style                     ", menu = fontstylemenu)   
+formatmenu.add_command(label = "Options...                      ", command = options) 
 
 viewmenu = Menu(menubar, tearoff = 0) 
 zoommenu = Menu(menubar, tearoff = 0) 
 menubar.add_cascade(label = "View", menu = viewmenu)
-zoommenu.add_command(label = "Zoom In                         ") 
+zoommenu.add_command(label = "Zoom In                         ")  
 zoommenu.add_command(label = "Zoom Out                        ") 
 zoommenu.add_command(label = "Restore Default Zoom            ") 
 viewmenu.add_cascade(label = "Zoom                            ", menu = zoommenu) 
@@ -182,4 +223,4 @@ helpmenu.add_separator()
 helpmenu.add_command(label = "About Notes                     ", command = about_notes)
 
 window.config(menu = menubar)
-window.mainloop()
+mainloop()
