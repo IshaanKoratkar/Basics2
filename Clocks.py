@@ -1,73 +1,75 @@
-import tkinter
-from tkinter import *
-from tkinter.messagebox import *
-from tkinter.filedialog import *
-import datetime
+import turtle
+import time
 
-window = Tk() 
+window = turtle.Screen() 
 window.title("Clocks") 
-window.geometry("650x173")
-window.attributes("-alpha", 0.95)
-window.configure(bg = "gray10")
+window.setup(width = 1000, height = 500) 
+window.bgcolor("black") 
+window.tracer(0) 
 
-label_1 = Label(window, font = ("Times", 50, "bold"), background = "gray10", foreground = "turquoise1")
-label_2 = Label(window, font = ("Courier", 30), background = "gray10", foreground = "turquoise2")
-label_3 = Label(window, font = ("Arial", 15), background = "gray10", foreground = "turquoise3")  
+pen = turtle.Turtle() 
+pen.hideturtle() 
+pen.speed(0) 
+pen.pensize(2)  
 
-def title():
-    label_1.config(text = "Clocks")  
-    label_1.pack(anchor = "center") 
-
-    label_2.config(text = "By Ashwin Kalyan") 
-    label_2.pack(anchor = "center") 
-
-    label_3.config(text = "Version 0.1, May 2020") 
-    label_3.pack(anchor = "center") 
-
-def digital():
-    window_2 = Toplevel(window)  
-    window_2.title("Digital Clock") 
-    window_2.geometry("870x85") 
-    window_2.attributes("-alpha", 0.95)
-    window_2.configure(bg = "gray10") 
-
-    menubar_2 = Menu(window_2)
-    view = Menu(menubar_2, tearoff = 0) 
-    menubar_2.add_cascade(label = "View", menu = view)
-    view.add_command(label = "Title                           ", activebackground = "light sky blue", command = title)
-    view.add_command(label = "Analog                          ", activebackground = "light sky blue") 
-    view.add_command(label = "Digital                         ", activebackground = "light sky blue", command = digital)
-    view.add_separator() 
-    view.add_command(label = "Exit                            ", activebackground = "IndianRed1", command = exit) 
-
-    window_2.config(menu = menubar_2) 
- 
-    label_4 = Label(window_2, font = ("Times", 50, "bold"), background = "gray10", foreground = "maroon1") 
-
-    def digital_2():    
-        time_text = datetime.datetime.now()
+def analog_clock(hours, minutes, seconds):
+    pen.up() 
+    pen.goto(0, 210) 
+    pen.setheading(180) 
+    pen.color("white")
+    pen.pendown() 
+    pen.circle(210) 
     
-        label_4.config(text = time_text) 
-        label_4.after(1, digital_2)    
-        label_4.pack(anchor = "center") 
+    pen.penup()
+    pen.goto(0, 0)
+    pen.setheading(90) 
 
-    digital_2()   
+    for x in range(12):
+        pen.fd(190) 
+        pen.pendown() 
+        pen.fd(20) 
+        pen.penup() 
+        pen.goto(0, 0) 
+        pen.rt(30) 
 
+    pen.penup() 
+    pen.goto(0, 0) 
+    pen.color("pink") 
+    pen.setheading(90) 
+    angle = (hours / 12) * 360
+    pen.rt(angle) 
+    pen.pendown() 
+    pen.fd(160)
 
-def exit():
-    if messagebox.askyesno("Exit", "Are you sure you want to close Clock?"):
-        window.destroy()    
+    pen.penup() 
+    pen.goto(0, 0) 
+    pen.color("turquoise") 
+    pen.setheading(90) 
+    angle = (minutes / 60) * 360
+    pen.rt(angle) 
+    pen.pendown() 
+    pen.fd(100)
 
-menubar = Menu(window)
-view = Menu(menubar, tearoff = 0) 
-menubar.add_cascade(label = "View", menu = view)
-view.add_command(label = "Title                           ", activebackground = "light sky blue", command = title)
-view.add_command(label = "Analog                          ", activebackground = "light sky blue") 
-view.add_command(label = "Digital                         ", activebackground = "light sky blue", command = digital)
-view.add_separator() 
-view.add_command(label = "Exit                            ", activebackground = "IndianRed1", command = exit) 
+    pen.penup() 
+    pen.goto(0, 0) 
+    pen.color("gray") 
+    pen.setheading(90) 
+    angle = (seconds / 60) * 360
+    pen.rt(angle) 
+    pen.pendown() 
+    pen.fd(100)
 
-title()
+while True:
+    hours = int(time.strftime("%I")) 
+    minutes = int(time.strftime("%M")) 
+    seconds = int(time.strftime("%S")) 
+    
+    analog_clock(hours, minutes, seconds) 
 
-window.config(menu = menubar)
+    window.update()  
+
+    time.sleep(1) 
+
+    pen.clear() 
+
 window.mainloop() 
