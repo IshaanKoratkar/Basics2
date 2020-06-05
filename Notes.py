@@ -1,11 +1,16 @@
 """
-New Window, Save, and the Options functions are still not working so those need to be fixed.
-Also, the title formating, ya know when you open a new text file its like "{FILE NAME} - Notes", yeah we need to make that work too.
-Also tabs, tabs need to work.
-Yeah that's pretty much it.
+List of things that aren't working:
+
+1. Horizontal Scrollbar 
+2. Zoom Options (zoom in, zoom out, restore default zoom) 
+3. Options... (font, font size, font style)
+4. New Window
+5. Save
+
+Yeah thats mostly it.
 """
 
-import tkinter  
+import tkinter
 from tkinter import ttk 
 from tkinter.messagebox import *
 from tkinter.filedialog import *
@@ -15,18 +20,27 @@ import selenium
 from selenium import webdriver 
 import os
 import datetime
+import winsound
 
 window = Tk()
-window.title("Untitled - Notes")  
+window.title("Notes")  
 window.geometry("1150x500") 
 
-scrollbar = Scrollbar(window)
-scrollbar.pack(side = RIGHT, fill = Y) 
+tabControl = ttk.Notebook(window) 
+tab1 = ttk.Frame(tabControl)
+tabControl.add(tab1, text = "Untitled                ") 
+tabControl.pack(expand = 1, fill = "both")
 
-scrollbar_2 = Scrollbar(window, orient = "horizontal")
-scrollbar_2.pack(side = BOTTOM, fill = X)  
+scrollbar = Scrollbar(tab1, orient = "vertical")  
+scrollbar.pack(side = RIGHT, fill = Y, expand = FALSE) 
 
-typingarea = Text(window, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True)  
+scrollbar_2 = Scrollbar(tab1, orient = "horizontal")
+scrollbar_2.pack(side = BOTTOM, fill = X, expand = FALSE)   
+
+sizegrip = ttk.Sizegrip(tab1) 
+sizegrip.pack(in_ = scrollbar, side = BOTTOM, anchor = "se")   
+
+typingarea = Text(tab1, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True, borderwidth = 0)  
 typingarea.configure(font = ("Courier", 12))
 typingarea.pack() 
 
@@ -38,25 +52,48 @@ keyboard = Controller()
 def save_as():
     file_extension = [("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")]
     text_file = asksaveasfile(mode = "w", filetypes = file_extension, defaultextension = file_extension, title = "Save As...")  
-    window.title("{NAME OF TEXT FILE} - Notes") 
     data = typingarea.get(0.0, END) 
     text_file.write(data) 
     text_file.close()
 
 def new(): 
+    winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
+
     if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
         typingarea.delete(0.0, END)
-        window.title("Untitled - Notes") 
 
     else:
         save_as() 
+        typingarea.delete(0.0, END)
+
+def new_tab():
+    tab2 = ttk.Frame(tabControl)
+    tabControl.add(tab2, text = "Untitled                ") 
+    tabControl.pack(expand = 1, fill = "both")
+
+    scrollbar = Scrollbar(tab2) 
+    scrollbar.pack(side = RIGHT, fill = Y) 
+
+    sizegrip = ttk.Sizegrip(tab2) 
+    sizegrip.pack(in_ = scrollbar, side = BOTTOM, anchor = "se")  
+
+    scrollbar_2 = Scrollbar(tab2, orient = "horizontal")
+    scrollbar_2.pack(side = BOTTOM, fill = X)  
+
+    typingarea = Text(tab2, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True, borderwidth = 0)  
+    typingarea.configure(font = ("Courier", 12)) 
+    typingarea.pack() 
+
+    scrollbar.config(command = typingarea.yview)  
+    scrollbar_2.config(command = typingarea.xview) 
 
 def open():
+    winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
+
     if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
         file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
         text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
 
-        window.title("{NAME OF TEXT FILE} - Notes")
         typingarea.delete(0.0, END) 
 
         data = text_file.read()
@@ -65,13 +102,24 @@ def open():
 
     else:
         save_as() 
+        file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
+        text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
+
+        typingarea.delete(0.0, END) 
+
+        data = text_file.read()
+        typingarea.insert(0.0, data) 
+        text_file.close()  
 
 def exit():
+    winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
+
     if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
         window.destroy()     
 
-    else:
+    else: 
         save_as() 
+        window.destroy()
 
 def undo(): 
     keyboard.press(Key.ctrl)
@@ -114,8 +162,8 @@ def select_all():
     keyboard.release(Key.ctrl)
 
 def date_time():
-    date_and_time = str(datetime.datetime.now()) 
-    typingarea.insert(0.0, date_and_time) 
+    date_and_time = str(datetime.datetime.now())  
+    typingarea.insert(0.0, date_and_time)  
 
 def options():
     window_2 = Toplevel() 
@@ -163,12 +211,19 @@ def dark_mode():
     typingarea.configure(foreground = "white") 
 
 def view_help():
-    options = webdriver.ChromeOptions()
-    options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
-    browser = webdriver.Chrome("C:\\Users\\Ashwin\\Documents\\Python Apps\\Basics App Suite\\Notes\\chromedriver.exe", chrome_options = options)   
-    browser.get("https://www.google.com/search?sxsrf=ALeKk01-BzXrUEFcTW9iu-ejxVgsQQ35_g%3A1590437280250&ei=oCXMXsH1Do3i-gTi_bbgAg&q=Help+with+Windows+10+Notepad&oq=Help+with+Windows+10+Notespad&gs_lcp=CgZwc3ktYWIQA1AAWABg5zRoAHAAeACAAQCIAQCSAQCYAQCqAQdnd3Mtd2l6&sclient=psy-ab&ved=0ahUKEwjBxYHJ6M_pAhUNsZ4KHeK-DSwQ4dUDCAw&uact=5")
+
+    try:
+        options = webdriver.ChromeOptions()
+        options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+        browser = webdriver.Chrome("C:\\Users\\Ashwin\\Documents\\Python Apps\\Basics App Suite\\Notes\\chromedriver.exe", chrome_options = options)   
+        browser.get("https://www.google.com/search?sxsrf=ALeKk01-BzXrUEFcTW9iu-ejxVgsQQ35_g%3A1590437280250&ei=oCXMXsH1Do3i-gTi_bbgAg&q=Help+with+Windows+10+Notepad&oq=Help+with+Windows+10+Notespad&gs_lcp=CgZwc3ktYWIQA1AAWABg5zRoAHAAeACAAQCIAQCSAQCYAQCqAQdnd3Mtd2l6&sclient=psy-ab&ved=0ahUKEwjBxYHJ6M_pAhUNsZ4KHeK-DSwQ4dUDCAw&uact=5")
    
-def about_notes():
+    except:
+        winsound.PlaySound("SystemHand", winsound.SND_ASYNC)
+
+        messagebox.showerror("Error", "Web browser not supported.                                                       ") 
+
+def about_notes(): 
     showinfo("About Notes", "Notes 1.0 Beta                                                            \nBuilt by Ashwin Kalyan                                                            ")
 
 menubar = Menu(window) 
@@ -176,8 +231,8 @@ menubar = Menu(window)
 filemenu = Menu(menubar, tearoff = 0)
 menubar.add_cascade(label = "File", menu = filemenu) 
 filemenu.add_command(label = "New                             ", command = new)
-filemenu.add_command(label = "New Tab                         ")   
-filemenu.add_command(label = "New Window                      ") 
+filemenu.add_command(label = "New Tab                         ", command = new_tab)   
+filemenu.add_command(label = "New Window                      ")  
 filemenu.add_separator() 
 filemenu.add_command(label = "Save                            ")   
 filemenu.add_command(label = "Save as...                      ", command = save_as) 
