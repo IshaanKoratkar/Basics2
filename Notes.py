@@ -1,15 +1,3 @@
-"""
-List of things that aren't working:
-
-1. Horizontal Scrollbar 
-2. Zoom Options (zoom in, zoom out, restore default zoom) 
-3. Options... (font, font size, font style)
-4. New Window
-5. Save
-
-Yeah thats mostly it.
-"""
-
 import tkinter
 from tkinter import ttk 
 from tkinter.messagebox import *
@@ -29,23 +17,18 @@ window.geometry("1150x500")
 tabControl = ttk.Notebook(window) 
 tab1 = ttk.Frame(tabControl)
 tabControl.add(tab1, text = "Untitled                ") 
-tabControl.pack(expand = 1, fill = "both")
+tabControl.pack(expand=1, fill="both")
 
 scrollbar = Scrollbar(tab1, orient = "vertical")  
 scrollbar.pack(side = RIGHT, fill = Y, expand = FALSE) 
 
-scrollbar_2 = Scrollbar(tab1, orient = "horizontal")
-scrollbar_2.pack(side = BOTTOM, fill = X, expand = FALSE)   
 
-sizegrip = ttk.Sizegrip(tab1) 
-sizegrip.pack(in_ = scrollbar, side = BOTTOM, anchor = "se")   
-
-typingarea = Text(tab1, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True, borderwidth = 0)  
+typingarea = Text(tab1, height = 1150, width = 500, yscrollcommand = scrollbar.set, undo = True, borderwidth = 0, wrap = CHAR)  
 typingarea.configure(font = ("Courier", 12))
 typingarea.pack() 
 
 scrollbar.config(command = typingarea.yview)  
-scrollbar_2.config(command = typingarea.xview) 
+
 
 keyboard = Controller()
 
@@ -56,60 +39,39 @@ def save_as():
     text_file.write(data) 
     text_file.close()
 
-def new(): 
-    winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
-
-    if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
-        typingarea.delete(0.0, END)
-
-    else:
-        save_as() 
-        typingarea.delete(0.0, END)
-
 def new_tab():
+    global tab2
     tab2 = ttk.Frame(tabControl)
     tabControl.add(tab2, text = "Untitled                ") 
     tabControl.pack(expand = 1, fill = "both")
 
-    scrollbar = Scrollbar(tab2) 
-    scrollbar.pack(side = RIGHT, fill = Y) 
+    new_scrollbar = Scrollbar(tab2, orient = "vertical")  
+    new_scrollbar.pack(side = RIGHT, fill = Y, expand = FALSE) 
 
-    sizegrip = ttk.Sizegrip(tab2) 
-    sizegrip.pack(in_ = scrollbar, side = BOTTOM, anchor = "se")  
 
-    scrollbar_2 = Scrollbar(tab2, orient = "horizontal")
-    scrollbar_2.pack(side = BOTTOM, fill = X)  
+    global new_typing_area 
+    new_typing_area = Text(tab2, height = 1150, width = 500, yscrollcommand = new_scrollbar.set, undo = True, borderwidth = 0)
+    new_typing_area.configure(font = ("Courier", 12))
+    new_typing_area.pack()
 
-    typingarea = Text(tab2, height = 1150, width = 500, xscrollcommand = scrollbar_2.set, yscrollcommand = scrollbar.set, undo = True, borderwidth = 0)  
-    typingarea.configure(font = ("Courier", 12)) 
-    typingarea.pack() 
+    new_scrollbar.config(command = new_typing_area.yview)  
 
-    scrollbar.config(command = typingarea.yview)  
-    scrollbar_2.config(command = typingarea.xview) 
+
+def new(): 
+    new_tab() 
 
 def open():
-    winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
+    new_tab() 
+    tabControl.add(tab2, text = "{NAME OF TEXT FILE}                ") 
+    
+    file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
+    text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
 
-    if messagebox.askyesno("Notes", "If you haven't saved the currently open file then it will be lost. Do you want to continue?"):
-        file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
-        text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
+    new_typing_area.delete(0.0, END) 
 
-        typingarea.delete(0.0, END) 
-
-        data = text_file.read()
-        typingarea.insert(0.0, data) 
-        text_file.close()  
-
-    else:
-        save_as() 
-        file_extensions = [("All Files (*.*)", "*.*"), ("Text Document (*.txt)", "*.txt"), ("Rich Text Format (*.rtf)", "*.rtf")] 
-        text_file = askopenfile(parent = window, mode = "rb", filetypes = file_extensions, title = "Open...") 
-
-        typingarea.delete(0.0, END) 
-
-        data = text_file.read()
-        typingarea.insert(0.0, data) 
-        text_file.close()  
+    data = text_file.read()
+    new_typing_area.insert(0.0, data) 
+    text_file.close()  
 
 def exit():
     winsound.PlaySound("SystemAsterick", winsound.SND_ASYNC)
@@ -163,7 +125,8 @@ def select_all():
 
 def date_time():
     date_and_time = str(datetime.datetime.now())  
-    typingarea.insert(0.0, date_and_time)  
+    typingarea.insert(0.0, date_and_time)   
+    new_typing_area.insert(0.0, date_and_time)  
 
 def options():
     window_2 = Toplevel() 
