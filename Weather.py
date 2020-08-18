@@ -8,7 +8,7 @@ window.title("Weather")
 city_label = Label(window, text = 'Your City') 
 city_label.pack()
 
-api_key = "70ee2c91af84e06f66754f876bdc0aef"
+api_key = "YOUR_API_KEY"
 base_url = "http://api.openweathermap.org/data/2.5/weather?"
 city_name = str(input("Enter city name : "))
 city_label = Label(window, text = city_name)
